@@ -163,4 +163,4 @@ ggplot() +
   theme(axis.text.y = element_text(face = c('plain', 'plain', 'plain', 'plain', 'plain', 'plain', 'plain', 'plain', 'plain', 'plain', 'plain', 'plain', 'plain', 'plain', 'plain', 'bold', 'plain', 'plain', 'plain', 'plain')))
 ```
 
-Note: The code that made these graphics can be found here.
+Note: The code that made these graphics can be found [here].(https://github.com/jillmlam/Notebooks/blob/main/project1.Rmd)
