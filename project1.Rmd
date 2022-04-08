@@ -1,5 +1,166 @@
 ---
-site: blogdown:::blogdown_site
+title: 'Did Alexis Markowski Deserve to Win Big Ten Freshman of the Year? '
+author: Jill Lamkins
+date: '2022-03-30'
+slug: did-alexis-markowski-deserve-to-win-big-ten-freshman-of-the-year
+categories: []
+tags: []
 ---
 
-<!-- This file is for blogdown only. Please do not edit it. -->
+The Husker women's basketball team had a great season, no doubt, but one player, in particular, stood out among the rest. Even though she is just a freshman, the newcomer was a huge asset to the Cornhuskers this season. 
+
+Winning Big Ten Freshman of the Week eight times during the season, forward Alexis Markowski went on to win the title of Big Ten Freshman of the Year. The Lincoln Pius X graduate is the second Nebraska player to earn this award. She joins another Nebraska native, Jessica Shepard, who won in 2016. 
+
+Markowski joined teammate Jazz Shelley, on the All-Big Ten second Team. Making this the first time since 2015 for the Cornhuskers to have multiple all-conference players earning second-team honors. Markowski was also the only Power Five conference freshman to average at least 12 points and 6 rebounds this season.
+
+Clearly, as we can see she over-performed, beating her competition out of the water. 
+```{r warning=FALSE, message=FALSE, echo=FALSE}
+library(tidyverse)
+library(wehoop)
+library(gt)
+library(ggplot2)
+library(ggrepel)
+library(ggalt)
+```
+
+```{r warning=FALSE, message=FALSE, echo=FALSE}
+frosh <- c("Alexis Markowski", "Shyanne Sellers", "Laila Phelia", "Matilda Ekh", "Leilani Kapinus")
+
+players <- load_wbb_player_box(seasons = 2022) %>% mutate_at(3, as.numeric) %>% mutate_at(7:15, as.numeric)
+```
+
+```{r warning=FALSE, message=FALSE, echo=FALSE}
+allfresh <- players %>%
+  filter(athlete_display_name %in% frosh) %>%
+  group_by(athlete_display_name) %>%
+  summarise(
+    ppg = mean(pts),
+    rpg = mean(reb)
+  )
+```
+
+```{r warning=FALSE, message=FALSE, echo=FALSE}
+allfresh %>%
+  gt() %>%
+  cols_label(
+    athlete_display_name = "Athlete's Name",
+    ppg = "Points Per Game",
+    rpg = "Rebounds Per Game"
+  ) %>%
+  tab_header(
+    title = "Markowski leads the All-Freshman Team ",
+    subtitle = "The 6'3 Husker was the only Big Ten freshman to lead her team in scoring and rebounding"
+  ) %>%
+  tab_style(
+    style = cell_text(color = "black", weight = "bold",  align = "left"),
+    locations = cells_title("title")) %>% 
+  tab_style(
+    style = cell_text(color = "black", align = "left"),
+    locations = cells_title("subtitle")) %>%
+  tab_source_note(
+    source_note = md("**By:** Jill Lamkins  |  **Source:** wehoop: The SportsDataverse's R Package for Women's Basketball Data")
+ ) %>%
+  tab_style(
+     locations = cells_column_labels(columns = everything()),
+     style = list(
+       cell_borders(sides = "bottom", weight = px(3)),
+       cell_text(weight = "bold", size=12)
+     )
+   ) %>%
+  opt_row_striping() %>%
+  opt_table_lines("none") %>%
+  tab_style(
+    style = list(
+      cell_fill(color = "red"),
+      cell_text(color = "black")
+      ),
+    locations = cells_body(
+      rows = athlete_display_name == "Alexis Markowski")
+  )
+```
+
+```{r warning=FALSE, message=FALSE, echo=FALSE}
+big10 <- c("Nebraska", "Iowa", "Minnesota", "Wisconsin", "Michigan State", "Michigan", "Purdue", "Illinois", "Rutgers", "Northwestern", "Maryland", "Ohio State", "Indiana", "Penn State")
+
+fieldgoals <- players %>%
+  separate(fg, into = c("shot", "made"), sep = "-") %>%
+  mutate(shot = as.numeric(shot), made = as.numeric(made))
+
+allplayers <- fieldgoals %>% group_by(athlete_display_name) %>% summarise(total_shots = sum(shot), total_makes = sum(made))
+
+bigplayers <- fieldgoals %>% filter(team_short_display_name %in% big10) %>% group_by(athlete_display_name) %>% summarise(total_shots = sum(shot), total_makes = sum(made))
+
+freshshots <- bigplayers %>% filter(athlete_display_name %in% frosh)
+```
+
+So we know that Markowski can play. So much so that the decision among the Big Ten All-Freshman team to pick out a Freshman of the Year was an easy choice by the league coaches - a unanimous choice at that. But why? Just look at her stats. 
+```{r warning=FALSE, message=FALSE, echo=FALSE}
+ggplot() +
+  geom_point(data = allplayers, aes(x=total_shots, y=total_makes), color = "grey", alpha=.1) +
+  geom_point(data = bigplayers, aes(x=total_shots, y=total_makes), color = "blue", alpha=.2) +
+  geom_point(data = freshshots, aes(x=total_shots, y=total_makes), color = "red") +
+  geom_text_repel(
+    data = freshshots, aes(x=total_shots, y=total_makes, label=athlete_display_name),
+    nudge_x = 1,
+    nudge_y = 1) +
+   labs(
+    x="Shots Made", 
+    y="Shots Attempted", 
+    title="Markowski leaning in the right direction", 
+    subtitle="The player shot 49% of all attempted field goals, ranging towards the top of all Big Ten players", 
+    caption="Source: wehoop: The SportsDataverse's R Package for Women's Basketball Data | By Jill Lamkins"
+    ) +
+  theme_light() +
+  theme(
+    legend.position = "none",
+    panel.grid.major = element_blank(),
+    plot.title = element_text(face = "bold", size = 18),
+    plot.title.position = "plot",
+    plot.subtitle = element_text(size = 12)
+  )
+```
+
+```{r warning=FALSE, message=FALSE, echo=FALSE}
+rebounds <- players %>%
+  filter(team_short_display_name %in% big10) %>%
+  group_by(athlete_display_name) %>%
+  summarise(
+   totalrebs = sum(reb),
+   totalorebs = sum(oreb),
+   totaldrebs = sum(dreb)
+) %>%
+  arrange(desc(totalrebs)) %>%
+  top_n(20, wt=totalrebs)
+```
+
+Not only does Markowski stand out among other Big Ten freshman players, but among all Big Ten players. Markowski remains in the top five among the top 20 Big Ten players for total defensive rebounds. 
+
+Just think of what stats, the powerhouse herself, will be putting up next year. There's a chance she has a Big Ten Player of the Year title in her future.
+```{r warning=FALSE, message=FALSE, echo=FALSE}
+ggplot() +
+  geom_dumbbell(
+    data = rebounds, 
+    aes(y=reorder(athlete_display_name,totaldrebs), x=totaldrebs, xend=totalorebs),
+    size = 2,
+    colour = "grey",
+    colour_x = "blue",
+    colour_xend = "red") +
+   labs(
+    x="Total Rebounds", 
+    y="Athlete Name", 
+    title="Markowski stays near the top", 
+    subtitle="Even when compared to other top Big Ten Players, the Husker freshman's stats remain strong", 
+    caption="Source: wehoop: The SportsDataverse's R Package for Women's Basketball Data | By Jill Lamkins"
+    ) +
+  theme_light() +
+  theme(
+    legend.position = "none",
+    panel.grid.major = element_blank(),
+    plot.title = element_text(face = "bold", size = 18),
+    plot.title.position = "plot",
+    plot.subtitle = element_text(size = 12)
+  ) +
+  theme(axis.text.y = element_text(face = c('plain', 'plain', 'plain', 'plain', 'plain', 'plain', 'plain', 'plain', 'plain', 'plain', 'plain', 'plain', 'plain', 'plain', 'plain', 'bold', 'plain', 'plain', 'plain', 'plain')))
+```
+
+Note: The code that made these graphics can be found here.
