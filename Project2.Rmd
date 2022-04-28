@@ -1,0 +1,178 @@
+---
+title: How does Casey Thompson compare to Adrian Martinez? Are the Huskers off for
+  better or for worse?
+author: R package build
+date: '2022-04-25'
+slug: how-does-casey-thompson-compare-to-adrian-martinez-are-the-huskers-off-for-better-or-for-worse
+categories: []
+tags: []
+---
+With our star quarterback, Adrian Martinez- who was said to do great things at Nebraska- leaving, his shoes are being filled by Texas transfer, Casey Thompson. The Oklahoma City native started for one season with the Longhorns and heads to Nebraska for head coach, Scott Frost's, fifth season. 
+
+Will Casey be able to help the Huskers turn their luck around? Well considering other schools like Oklahoma, Auburn, Indiana and Missouri wanted him, the Huskers might just be in luck. The question remains though, if Martinez- the once, long ago, thought-to-be Heisman nominee- is a better quarterback. With Frost looking to rebuild his offensive coaching team with hires like Mark Whipple, it may be hard to tell if our QB or offense was ever the true problem. 
+
+Let's look at things from a player stand point, noting the differences in stats among Martinez and Thompson. 
+
+```{r warning=FALSE, message=FALSE, echo=FALSE}
+library(tidyverse)
+library(ggplot2)
+library(ggrepel)
+library(cowplot)
+library(ggalt)
+
+Passing <- read_csv("PassingLeaders.csv")
+
+TotalOffense <- read_csv("NationalLeadersTotalOffense.csv")
+
+qblong <- TotalOffense %>% 
+  select(Nam, `Rush Yards`, `Pass Yards`) %>%
+  pivot_longer(cols = -Nam, names_to = "Type", values_to = "Yards")
+
+neqbs <- qblong %>%
+  filter(Nam == "Adrian Martinez" | Nam == "Casey Thompson")
+
+topqbs <- TotalOffense %>%
+  filter(Nam == "Bryce Young" | Nam == "CJ Stroud" | Nam == "Sam Hartman" | Nam == "Adrian Martinez" | Nam == "Casey Thompson" | Nam == "Bailey Zappe")
+
+ggplot() + 
+   geom_bar(data= qblong, aes(x=reorder(Nam, Yards), weight=Yards, fill=Type)) +
+ geom_text_repel(
+    data=topqbs, aes(x=Nam, y=`Total Yards`, label=Nam),
+    nudge_x=-2,
+    nudge_y=2
+) +
+   scale_x_discrete(labels = NULL, breaks = NULL) +
+   labs(x = "") + 
+  geom_bar(data = neqbs, aes(x=Nam, weight=Yards, fill=Type),
+  colour="black") + 
+  labs(
+    x = "Player",
+    y = "Yards",
+    title = "The new vs. the old." , 
+    subtitle = "Both QB's made the top 100 national leaders in total yardage, but one outperformed the other.",
+    caption = "Source: cfbstats.com | By Jill Lamkins"
+    ) +
+  scale_fill_manual(values=c("#FDF2D9", "#bf5700")) +
+  theme(legend.position="bottom") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 16, face = "bold"),
+    axis.title = element_text(size = 8), 
+    plot.subtitle = element_text(size=10), 
+    plot.title.position = "plot",
+    panel.grid.minor = element_blank()
+    )
+```
+While Martinez came into Nebraska as a true freshman, Thompson had to wait patiently for his opportunity to start with the Longhorns. After backing up Sam Ehlinger in previous seasons, Thompson finally got his chance to start the final 10 games of the 2021 season.
+
+According to cfbstats.com, among the top 100 national leaders in total offense, Martinez ranked 13th overall while Thompson ranked 87th overall. But let's see how the two stacked up against other QB's in their respected conferences. 
+
+```{r warning=FALSE, message=FALSE, echo=FALSE}
+big12 <- read_csv("Big12Passing.csv")
+
+big10 <- read_csv("Big10Passing.csv")
+
+big12pass <- big12 %>%
+ select(Name, Pct.) %>%
+filter(Pct. > 0) %>%
+filter(Pct. < 100)
+
+big10pass <- big10 %>%
+  select(Name, Pct.) %>%
+  filter(Pct. > 0)  %>%
+filter(Pct. < 100)
+
+ad <- big10pass %>% 
+  filter(Name == "Adrian Martinez")
+  
+ct <- big12pass %>% 
+  filter(Name == "Casey Thompson")
+
+bar1 <- ggplot() + 
+  geom_bar(data=big12pass, aes(x=reorder(Name, Pct.), weight=Pct.)) + 
+  geom_bar(data=ct, aes(x=reorder(Name, Pct.), weight=Pct.), fill="#bf5700") +
+  coord_flip() + 
+  labs(
+    title="Where do they lie among their conferences?", 
+    subtitle = "The quarterbacks averaged around 60% each for passing.",  
+    x="Big 12 Players", 
+    y="Passing Percentage", 
+    caption = "") + 
+  theme_minimal() + 
+  theme(
+    plot.title = element_text(size = 16, face = "bold"),
+    axis.title = element_text(size = 8), 
+    plot.subtitle = element_text(size=10),
+    plot.title.position = "plot",
+    panel.grid.minor = element_blank()
+    ) + 
+  theme(axis.text.y = element_text(face = c('plain', 'plain', 'plain', 'plain', 'plain', 'plain', 'plain', 'bold', 'plain', 'plain', 'plain')))
+                                   
+bar2 <- ggplot() + 
+  geom_bar(data=big10pass, aes(x=reorder(Name, Pct.), weight=Pct.)) +
+  geom_bar(data=ad, aes(x=reorder(Name, Pct.), weight=Pct.), fill="#E41C38") +
+  coord_flip() +
+  labs(
+    title = "", 
+    subtitle= "", 
+    x="Big 10 Players", 
+    y="",  
+    caption="Source: cfbstats.com | By Jill Lamkins") + 
+  theme_minimal() + 
+  theme(
+    plot.title = element_text(size = 16, face = "bold"),
+    axis.title = element_text(size = 8), 
+    plot.subtitle = element_text(size=10),
+    plot.title.position = "plot",
+    panel.grid.minor = element_blank()
+    ) + 
+  theme(axis.text.y = element_text(face = c('plain', 'plain', 'plain', 'plain', 'plain', 'plain', 'plain', 'plain', 'plain', 'plain', 'plain', 'bold', 'plain', 'plain', 'plain', 'plain', 'plain', 'plain')))
+
+plot_grid(bar1, bar2)
+```
+Both ranked 6th in passing percentage in their conferences, but Thompson averaged 1.4% better than Martinez. It's hard to say if this has significant impact on their overall performance however, but it's still something to take note of. To take a closer look, let's look at other Big Ten quarterbacks compared to our QB's in passing attempts versus completions. 
+
+```{r warning=FALSE, message=FALSE, echo=FALSE}
+big10comp <- big10 %>%
+  select(Name, Att, Comp) %>%
+  filter(Att > 9, Comp > 6)
+
+
+big12comp <- Passing %>%
+  select(Name, Att, Comp)
+
+ctcomp <- big12comp %>%
+  filter(Name == "Casey Thompson")
+
+dumbbellqb <- bind_rows(big10comp, ctcomp)
+
+ggplot() + 
+  geom_dumbbell(
+    data=dumbbellqb, 
+    aes(y=reorder(Name, Comp), x=Comp, xend=Att), 
+    size = 1,
+    colour = "grey",
+    colour_x = "green",
+    colour_xend = "red") +
+   labs(
+    title = "Adrian takes the lead.", 
+    subtitle= "With a couple more completions than our new QB, it'll be interesting to see where Casey can take the Huskers.", 
+    x="Passing Completions", 
+    y="",  
+    caption="Source: cfbstats.com | By Jill Lamkins") + 
+  theme_minimal() + 
+  theme(
+    plot.title = element_text(size = 16, face = "bold"),
+    axis.title = element_text(size = 8), 
+    plot.subtitle = element_text(size=10),
+    plot.title.position = "plot",
+    panel.grid.minor = element_blank()
+    ) + 
+  theme(axis.text.y = element_text(face = c('plain', 'plain', 'plain', 'plain', 'bold', 'plain', 'plain', 'plain', 'bold', 'plain', 'plain', 'plain', 'plain', 'plain', 'plain')))
+  
+
+```
+
+It seems although Thompson had a better passing percentage, Martinez took more chances and got more completions. Either way, the Husker's shouldn't have anything to worry about with Thompson taking over. He has experience under his belt and professionalism to guide him through the coming season. With a new offensive coordinator and other key transfers like Decoldest Crawford and Isaiah Garcia-Castaneda, the Husker's can only hope, once again, to get back to their glory days. 
+
+Note: The code that made these graphics can be found [here]().
